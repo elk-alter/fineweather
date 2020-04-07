@@ -31,4 +31,27 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    //数据库框架
+    implementation 'org.litepal.android:java:3.0.0'
+
+    //网络服务
+    implementation 'com.squareup.okhttp3:okhttp:4.4.0'
+
+    //js解析
+    implementation 'com.google.code.gson:gson:2.8.6'
+
+    //图片处理
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+
+    //城市选择
+    implementation 'com.zaaach:citypicker:2.0.3'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+
+    //UI
+    implementation 'androidx.viewpager:viewpager:1.0.0'
+
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.google.android.material:material:1.2.0-alpha05'
 }
