@@ -8,7 +8,10 @@ public class CityInfo extends LitePalSupport {
 
     private String cityName;
 
+    private String cityCode;
+
     private String weatherId;
 
+    private String provinceName;
 
 }
