@@ -1,4 +1,4 @@
-package com.example.fineweather;
+package com.example.fineweather.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.fineweather.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.zaaach.citypicker.CityPicker;
 import com.zaaach.citypicker.adapter.OnPickListener;
@@ -20,6 +21,7 @@ import com.zaaach.citypicker.model.LocatedCity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class CityPickerActivity extends AppCompatActivity {
 
@@ -30,7 +32,7 @@ public class CityPickerActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         FloatingActionButton fab = findViewById(R.id.add_city_button);
