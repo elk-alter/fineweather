@@ -1,20 +1,30 @@
 package com.example.fineweather.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.example.fineweather.R;
-import com.example.fineweather.gson.Weather;
+import androidx.appcompat.app.AppCompatActivity;
 
-import org.litepal.util.BaseUtility;
+import com.example.fineweather.R;
+import com.example.fineweather.db.CityInfo;
+import com.example.fineweather.db.ForecastDB;
+import com.example.fineweather.db.HourlyDB;
+import com.example.fineweather.db.NowDB;
+import com.example.fineweather.gson.Hourly;
+import com.example.fineweather.util.WeatherUtil;
+
+import org.litepal.LitePal;
+
+import java.util.List;
 
 public class WeatherActivity extends AppCompatActivity {
+
+    private static final String TAG = "WeatherActivity";
 
     private ScrollView weatherLayout;
 
@@ -42,6 +52,8 @@ public class WeatherActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
+
+        LitePal.getDatabase();
         //初始化各控件
         weatherLayout = findViewById(R.id.weather_layout);
         titleCity = findViewById(R.id.title_city);
@@ -55,12 +67,70 @@ public class WeatherActivity extends AppCompatActivity {
         carWashText = findViewById(R.id.car_wash_text);
         sportText = findViewById(R.id.sport_text);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String weatherString = prefs.getString("weather", null);
-        if (weatherString != null) {
-            //有缓存直接解析天气数据
-            Weather weather = BaseUtility.handleWeatherRespones(weatherString);
+        String cityCode = getIntent().getStringExtra("cityCode");
 
+        requestWeather(cityCode);
+
+        try {
+            Thread.sleep(2000);
+            showWeatherInfo(cityCode);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+    }
+
+    /**
+     * 根据天气id请求城市天气信息
+     */
+    public void requestWeather(final String cityCode) {
+        WeatherUtil weatherUtil = new WeatherUtil();
+        weatherUtil.saveNowInfo(cityCode);
+        weatherUtil.saveForecastInfo(cityCode);
+        weatherUtil.saveHourlyInfo(cityCode);
+        Log.d(TAG, "requestWeather: request");
+    }
+
+
+    //TODO 空气质量
+    /**
+     * 处理并显示Weather实体类中的数据
+     */
+    private void showWeatherInfo(String cityCode) {
+        CityInfo cityInfo = LitePal.where("cityCode = ?", cityCode).find(CityInfo.class).get(0);
+        Log.d(TAG, "showWeatherInfo: " + cityInfo.getCityName());
+        NowDB nowDB = LitePal.where("cityCode = ?", cityCode).find(NowDB.class).get(0);
+        List<ForecastDB> forecastDBList = LitePal.where("cityCode = ?", cityCode).find(ForecastDB.class);
+        List<HourlyDB> hourlyDBList = LitePal.where("cityCode = ?", cityCode).find(HourlyDB.class);
+
+
+        Log.d(TAG, "showWeatherInfo: " + nowDB.getCond_txt());
+        titleCity.setText(cityInfo.getCityName());
+        titleUpdateTime.setText(nowDB.getLocTime());
+        degreeText.setText(nowDB.getTmp());
+        weatherInfoText.setText(nowDB.getCond_txt());
+
+        forecastLayout.removeAllViews();
+        for (ForecastDB f : forecastDBList) {
+            View view = LayoutInflater.from(this).inflate(R.layout.forecast_item, forecastLayout, false);
+            TextView dateText = view.findViewById(R.id.date_text);
+            TextView infoText = view.findViewById(R.id.info_text);
+            TextView maxText = view.findViewById(R.id.max_text);
+            TextView minText = view.findViewById(R.id.min_text);
+            dateText.setText(f.getDate());
+            infoText.setText(f.getCond_txt());
+            maxText.setText(f.getTmp_max());
+            minText.setText(f.getTmp_min());
+            forecastLayout.addView(view);
+        }
+
+        aqiText.setText("1");
+        pm25Text.setText("2");
+
+        comfortText.setText("3");
+        carWashText.setText("4");
+        sportText.setText("5");
+        weatherLayout.setVisibility(View.VISIBLE);
+
     }
 }

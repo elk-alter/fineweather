@@ -4,13 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.example.fineweather.R;
+import com.example.fineweather.db.CityInfo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.zaaach.citypicker.CityPicker;
 import com.zaaach.citypicker.adapter.OnPickListener;
@@ -19,11 +22,15 @@ import com.zaaach.citypicker.model.HotCity;
 import com.zaaach.citypicker.model.LocateState;
 import com.zaaach.citypicker.model.LocatedCity;
 
+import org.litepal.LitePal;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class CityPickerActivity extends AppCompatActivity {
+
+    private static final String TAG = "CityPickerActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +61,13 @@ public class CityPickerActivity extends AppCompatActivity {
                             @Override
                             public void onPick(int position, City data) {
                                 Toast.makeText(getApplicationContext(), data.getName(), Toast.LENGTH_SHORT).show();
+                                String cityCode = "CN" + data.getCode();
+                                Intent intent = new Intent(CityPickerActivity.this, WeatherActivity.class);
+                                saveCityInfo(data.getName(), cityCode);
+                                Log.d(TAG, "onPick: " + data.getName() + cityCode);
+                                intent.putExtra("cityCode", cityCode);
+                                startActivity(intent);
+                                finish();
                             }
 
                             @Override
@@ -84,5 +98,19 @@ public class CityPickerActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home)
             finish();
         return super.onOptionsItemSelected(item);
+    }
+
+    public void saveCityInfo (String cityName, String cityCode) {
+        List<CityInfo> cityInfoList = LitePal.findAll(CityInfo.class);
+        for (CityInfo c : cityInfoList) {
+            if (c.getCityCode().equals(cityCode)) {
+                c.delete();
+            }
+        }
+
+        CityInfo cityInfo = new CityInfo();
+        cityInfo.setCityName(cityName);
+        cityInfo.setCityCode(cityCode);
+        cityInfo.save();
     }
 }

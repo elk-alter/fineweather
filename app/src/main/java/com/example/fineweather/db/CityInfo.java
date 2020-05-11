@@ -10,8 +10,28 @@ public class CityInfo extends LitePalSupport {
 
     private String cityCode;
 
-    private String weatherId;
+    public int getId() {
+        return id;
+    }
 
-    private String provinceName;
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getCityName() {
+        return cityName;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    public String getCityCode() {
+        return cityCode;
+    }
+
+    public void setCityCode(String cityCode) {
+        this.cityCode = cityCode;
+    }
 
 }
