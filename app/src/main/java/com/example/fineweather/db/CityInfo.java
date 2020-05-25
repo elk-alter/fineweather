@@ -10,6 +10,8 @@ public class CityInfo extends LitePalSupport {
 
     private String cityCode;
 
+    private String cityTmp;
+
     public int getId() {
         return id;
     }
@@ -34,4 +36,11 @@ public class CityInfo extends LitePalSupport {
         this.cityCode = cityCode;
     }
 
+    public String getCityTmp() {
+        return cityTmp;
+    }
+
+    public void setCityTmp(String cityTmp) {
+        this.cityTmp = cityTmp;
+    }
 }

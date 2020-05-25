@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -12,15 +13,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.fineweather.R;
+import com.example.fineweather.util.WeatherUtil;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
+
+    private String defcity = "CN101010100";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        //requestWeather(defcity);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -53,5 +59,18 @@ public class MainActivity extends AppCompatActivity {
             default:
         }
         return true;
+    }
+
+    public void requestWeather(final String cityCode) {
+        try {
+            WeatherUtil weatherUtil = new WeatherUtil();
+            weatherUtil.saveNowInfo(cityCode);
+            weatherUtil.saveForecastInfo(cityCode);
+            weatherUtil.saveHourlyInfo(cityCode);
+            Thread.sleep(2000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.d(TAG, "requestWeather: request");
     }
 }

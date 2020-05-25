@@ -1,14 +1,19 @@
 package com.example.fineweather.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.fineweather.R;
 import com.example.fineweather.db.CityInfo;
@@ -16,6 +21,7 @@ import com.example.fineweather.db.ForecastDB;
 import com.example.fineweather.db.HourlyDB;
 import com.example.fineweather.db.NowDB;
 import com.example.fineweather.gson.Hourly;
+import com.example.fineweather.gson.Weather;
 import com.example.fineweather.util.WeatherUtil;
 
 import org.litepal.LitePal;
@@ -67,12 +73,15 @@ public class WeatherActivity extends AppCompatActivity {
         carWashText = findViewById(R.id.car_wash_text);
         sportText = findViewById(R.id.sport_text);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         String cityCode = getIntent().getStringExtra("cityCode");
 
         requestWeather(cityCode);
 
         try {
-            Thread.sleep(2000);
+            Thread.sleep(3000);
             showWeatherInfo(cityCode);
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,5 +141,27 @@ public class WeatherActivity extends AppCompatActivity {
         sportText.setText("5");
         weatherLayout.setVisibility(View.VISIBLE);
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.city:
+                Intent intentCity = new Intent(WeatherActivity.this, CityPickerActivity.class);
+                startActivity(intentCity);
+                break;
+            case R.id.settings:
+                break;
+            case R.id.about:
+                break;
+            default:
+        }
+        return true;
     }
 }
