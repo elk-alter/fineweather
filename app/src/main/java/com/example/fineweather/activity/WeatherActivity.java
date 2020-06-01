@@ -1,8 +1,11 @@
 package com.example.fineweather.activity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,14 +17,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.fineweather.R;
 import com.example.fineweather.db.CityInfo;
 import com.example.fineweather.db.ForecastDB;
 import com.example.fineweather.db.HourlyDB;
 import com.example.fineweather.db.NowDB;
-import com.example.fineweather.gson.Hourly;
-import com.example.fineweather.gson.Weather;
 import com.example.fineweather.util.WeatherUtil;
 
 import org.litepal.LitePal;
@@ -54,6 +56,12 @@ public class WeatherActivity extends AppCompatActivity {
 
     private TextView sportText;
 
+    private SwipeRefreshLayout swipeRefresh;
+
+    private SharedPreferences preferences;
+
+    private SharedPreferences.Editor editor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,11 +84,30 @@ public class WeatherActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //下拉刷新
+        swipeRefresh = findViewById(R.id.swipe_reweather);
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshWeather();
+            }
+        });
         String cityCode = getIntent().getStringExtra("cityCode");
 
+        preferences = getPreferences(Activity.MODE_PRIVATE);
+
+        if (preferences.getString("code", null) != null) {
+            showWeatherInfo(preferences.getString("code", null));
+        }
+
+        //储存上次关闭应用时的城市
+        editor = preferences.edit();
+        editor.clear().apply();
+        editor.putString("code", cityCode);
+        editor.apply();
         if (getIntent().getIntExtra("step", 0) == 0) {
             requestWeather(cityCode);
-
             try {
                 Thread.sleep(3000);
                 showWeatherInfo(cityCode);
@@ -102,6 +129,7 @@ public class WeatherActivity extends AppCompatActivity {
         weatherUtil.saveNowInfo(cityCode);
         weatherUtil.saveForecastInfo(cityCode);
         weatherUtil.saveHourlyInfo(cityCode);
+        weatherUtil.saveAirNowCity(cityCode);
         Log.d(TAG, "requestWeather: request");
     }
 
@@ -138,8 +166,8 @@ public class WeatherActivity extends AppCompatActivity {
             forecastLayout.addView(view);
         }
 
-        aqiText.setText("1");
-        pm25Text.setText("2");
+        aqiText.setText(nowDB.getAqi());
+        pm25Text.setText(nowDB.getPm25());
 
         comfortText.setText("3");
         carWashText.setText("4");
@@ -154,6 +182,7 @@ public class WeatherActivity extends AppCompatActivity {
         return true;
     }
 
+    //顶部菜单
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
@@ -168,5 +197,28 @@ public class WeatherActivity extends AppCompatActivity {
             default:
         }
         return true;
+    }
+
+    //下拉刷新天气
+    public void refreshWeather() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                requestWeather(preferences.getString("code", null));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showWeatherInfo(preferences.getString("code", null));
+                        swipeRefresh.setRefreshing(false);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    //禁用返回
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return keyCode == KeyEvent.KEYCODE_BACK;
     }
 }

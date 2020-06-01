@@ -34,7 +34,9 @@
 
         <service android:name="com.baidu.location.f" android:enabled="true" android:process=":remote"> </service>
 
-        <activity android:name=".activity.WeatherActivity" />
+        <activity
+            android:name=".activity.WeatherActivity"
+            android:launchMode="singleTop"/>
         <activity
             android:name=".activity.CityPickerActivity"
             android:theme="@style/DefaultCityPickerTheme" />

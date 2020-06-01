@@ -152,7 +152,7 @@ public class CityPickerActivity extends AppCompatActivity {
                                 Log.d(TAG, "onPick: " + data.getName() + cityCode);
                                 intent.putExtra("cityCode", cityCode);
                                 startActivity(intent);
-                                finish();
+                                CityPickerActivity.this.finish();
                             }
 
                             @Override
@@ -208,6 +208,7 @@ public class CityPickerActivity extends AppCompatActivity {
         weatherUtil.saveNowInfo(cityCode);
         weatherUtil.saveForecastInfo(cityCode);
         weatherUtil.saveHourlyInfo(cityCode);
+        weatherUtil.saveAirNowCity(cityCode);
         Log.d(TAG, "requestWeather: request");
     }
 

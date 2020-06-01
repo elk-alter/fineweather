@@ -1,76 +1,30 @@
 package com.example.fineweather.activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.os.Handler;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import com.example.fineweather.R;
-import com.example.fineweather.util.WeatherUtil;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
-
-    private String defcity = "CN101010100";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //requestWeather(defcity);
+        int time = 1000;
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                startActivity(new Intent(MainActivity.this, WeatherActivity.class));
+                MainActivity.this.finish();
+            }
+        }, time);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if (prefs.getString("weather", null) != null) {
-            Intent intent = new Intent(this, WeatherActivity.class);
-            startActivity(intent);
-            finish();
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.city:
-                Intent intentCity = new Intent(MainActivity.this, CityPickerActivity.class);
-                startActivity(intentCity);
-                break;
-            case R.id.settings:
-                break;
-            case R.id.about:
-                break;
-            default:
-        }
-        return true;
-    }
-
-    public void requestWeather(final String cityCode) {
-        try {
-            WeatherUtil weatherUtil = new WeatherUtil();
-            weatherUtil.saveNowInfo(cityCode);
-            weatherUtil.saveForecastInfo(cityCode);
-            weatherUtil.saveHourlyInfo(cityCode);
-            Thread.sleep(2000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Log.d(TAG, "requestWeather: request");
     }
 }

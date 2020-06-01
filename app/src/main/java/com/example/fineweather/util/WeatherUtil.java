@@ -14,6 +14,7 @@ import java.util.List;
 import interfaces.heweather.com.interfacesmodule.bean.Code;
 import interfaces.heweather.com.interfacesmodule.bean.Lang;
 import interfaces.heweather.com.interfacesmodule.bean.Unit;
+import interfaces.heweather.com.interfacesmodule.bean.air.now.AirNow;
 import interfaces.heweather.com.interfacesmodule.bean.weather.forecast.Forecast;
 import interfaces.heweather.com.interfacesmodule.bean.weather.forecast.ForecastBase;
 import interfaces.heweather.com.interfacesmodule.bean.weather.hourly.Hourly;
@@ -159,6 +160,39 @@ public class WeatherUtil {
                                 hourlyDB.setTmp(h.getTmp());
                                 hourlyDB.setCond_txt(h.getCond_txt());
                                 hourlyDB.save();
+                            }
+                        } else {
+                            //在此查看返回数据失败的原因
+                            String status = dataObject.getStatus();
+                            Code code = Code.toEnum(status);
+                            Log.d(TAG, "failed code: " + code);
+                        }
+                    }
+                });
+    }
+
+    public void saveAirNowCity (final String cityCode) {
+        HeWeather.getAirNow(MyApplication.getContext(), cityCode, Lang.CHINESE_SIMPLIFIED, Unit.METRIC,
+                new HeWeather.OnResultAirNowBeansListener() {
+                    @Override
+                    public void onError(Throwable throwable) {
+                        Log.d(TAG, "AirNow onError: ", throwable);
+                    }
+
+                    @Override
+                    public void onSuccess(AirNow dataObject) {
+                        Log.d(TAG, "AirNow onSuccess: " + new Gson().toJson(dataObject));
+
+                        if ( Code.OK.getCode().equalsIgnoreCase(dataObject.getStatus()) ){
+                            //此时返回数据
+
+                            List<NowDB> nowDBList = LitePal.findAll(NowDB.class);
+                            for (NowDB n : nowDBList) {
+                                if (n.getCityCode().equals(cityCode)) {
+                                    n.setAqi(dataObject.getAir_now_city().getAqi());
+                                    n.setPm25(dataObject.getAir_now_city().getPm25());
+                                    n.save();
+                                }
                             }
                         } else {
                             //在此查看返回数据失败的原因

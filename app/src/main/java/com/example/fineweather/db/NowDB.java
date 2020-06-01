@@ -24,6 +24,9 @@ public class NowDB extends LitePalSupport {
 
     private String pcpn;//降水量
 
+    private String aqi;//空气质量指数
+
+    private String pm25;//PM2.5
 
     public int getId() {
         return id;
@@ -103,5 +106,21 @@ public class NowDB extends LitePalSupport {
 
     public void setPcpn(String pcpn) {
         this.pcpn = pcpn;
+    }
+
+    public String getAqi() {
+        return aqi;
+    }
+
+    public void setAqi(String aqi) {
+        this.aqi = aqi;
+    }
+
+    public String getPm25() {
+        return pm25;
+    }
+
+    public void setPm25(String pm25) {
+        this.pm25 = pm25;
     }
 }
