@@ -1,6 +1,8 @@
 package com.example.fineweather.activity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -11,16 +13,23 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.baidu.location.BDAbstractLocationListener;
+import com.baidu.location.BDLocation;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
 import com.example.fineweather.R;
 import com.example.fineweather.adapter.CityAdapter;
 import com.example.fineweather.db.CityInfo;
 import com.example.fineweather.db.NowDB;
 import com.example.fineweather.util.WeatherUtil;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
 import com.zaaach.citypicker.CityPicker;
 import com.zaaach.citypicker.adapter.OnPickListener;
 import com.zaaach.citypicker.model.City;
@@ -34,7 +43,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import interfaces.heweather.com.interfacesmodule.bean.Code;
+import interfaces.heweather.com.interfacesmodule.bean.Lang;
+import interfaces.heweather.com.interfacesmodule.bean.basic.Basic;
+import interfaces.heweather.com.interfacesmodule.bean.search.Search;
+import interfaces.heweather.com.interfacesmodule.view.HeConfig;
+import interfaces.heweather.com.interfacesmodule.view.HeWeather;
+
 public class CityPickerActivity extends AppCompatActivity {
+
+    public LocationClient mLocationClient = null;
+    private MyLocationListener myListener = new MyLocationListener();
+    String locCity = null;
+    String locCityCode = null;
+    String locProvince = null;
+
 
     private static final String TAG = "CityPickerActivity";
 
@@ -72,6 +95,32 @@ public class CityPickerActivity extends AppCompatActivity {
             }
         });
 
+        //声明LocationClient类
+        mLocationClient = new LocationClient(getApplicationContext());
+        //注册监听函数
+        mLocationClient.registerLocationListener(myListener);
+
+        List<String> permissionList = new ArrayList<>();
+        if (ContextCompat.checkSelfPermission(CityPickerActivity.this, Manifest.
+                permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (ContextCompat.checkSelfPermission(CityPickerActivity.this, Manifest.
+                permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.ACCESS_NETWORK_STATE);
+        }
+        if (ContextCompat.checkSelfPermission(CityPickerActivity.this, Manifest.
+                permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (!permissionList.isEmpty()) {
+            String [] permissions = permissionList.toArray(new String[permissionList.size()]);
+            ActivityCompat.requestPermissions(CityPickerActivity.this, permissions, 1);
+        } else {
+            requestLocation();
+        }
+
+
         //城市选择
         FloatingActionButton fab = findViewById(R.id.add_city_button);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -84,13 +133,18 @@ public class CityPickerActivity extends AppCompatActivity {
                 hotCities.add(new HotCity("深圳", "广东", "101280601"));
                 hotCities.add(new HotCity("杭州", "浙江", "101210101"));
 
+
+                mLocationClient.requestLocation();
+
+                requestCityInfo(locCity);
+
                 CityPicker.from(CityPickerActivity.this)
                         .enableAnimation(true)
-                        .setLocatedCity(new LocatedCity("杭州", "浙江", "101210101"))
                         .setHotCities(hotCities)
                         .setOnPickListener(new OnPickListener() {
                             @Override
                             public void onPick(int position, City data) {
+                                Log.d(TAG, "onCreate: " + locCity + locProvince + locCityCode);
                                 Toast.makeText(getApplicationContext(), data.getName(), Toast.LENGTH_SHORT).show();
                                 String cityCode = "CN" + data.getCode();
                                 Intent intent = new Intent(CityPickerActivity.this, WeatherActivity.class);
@@ -112,9 +166,10 @@ public class CityPickerActivity extends AppCompatActivity {
                                 new Handler().postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
+                                        Log.d(TAG, "run: " + locCity + locProvince + locCityCode);
                                         //定位完成之后更新数据
                                         CityPicker.from(CityPickerActivity.this)
-                                                .locateComplete(new LocatedCity("深圳", "广东", "101280601"), LocateState.SUCCESS);
+                                                .locateComplete(new LocatedCity(locCity, locProvince, locCityCode), LocateState.SUCCESS);
                                     }
                                 }, 3000);
                             }
@@ -166,7 +221,7 @@ public class CityPickerActivity extends AppCompatActivity {
                 String cityCode = cityInfo.getCityCode();
                 Log.d(TAG, "getCityWeather: " + cityCode);
                 List<NowDB> nowDBList = LitePal.where("cityCode = ?", cityCode).find(NowDB.class);
-                Log.d(TAG, "getCityWeather: " + nowDBList.isEmpty());
+                Log.d(TAG, "getCityWeather: " + !nowDBList.isEmpty());
                 if (!nowDBList.isEmpty()) {
                     NowDB nowDB = nowDBList.get(0);
                     String tmp = nowDB.getTmp();
@@ -202,5 +257,106 @@ public class CityPickerActivity extends AppCompatActivity {
                 });
             }
         }).start();
+    }
+
+    public LocationClientOption getOption() {
+        LocationClientOption option = new LocationClientOption();
+
+        option.setIsNeedAddress(true);
+//可选，是否需要地址信息，默认为不需要，即参数为false
+//如果开发者需要获得当前点的地址信息，此处必须为true
+
+        option.setNeedNewVersionRgc(true);
+//可选，设置是否需要最新版本的地址信息。默认需要，即参数为true
+
+        mLocationClient.setLocOption(option);
+//mLocationClient为第二步初始化过的LocationClient对象
+//需将配置好的LocationClientOption对象，通过setLocOption方法传递给LocationClient对象使用
+//更多LocationClientOption的配置，请参照类参考中LocationClientOption类的详细说明
+        return option;
+    }
+
+    public void requestLocation() {
+        mLocationClient.setLocOption(getOption());
+        mLocationClient.start();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0) {
+                    for (int result : grantResults) {
+                        if (result != PackageManager.PERMISSION_GRANTED) {
+                            Toast.makeText(this, "必须同意所有权限才能使用本程序", Toast.LENGTH_SHORT).show();
+                            finish();
+                            return;
+                        }
+                    }
+                    requestLocation();
+                } else {
+                    Toast.makeText(this, "发生未知错误", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                break;
+            default:
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mLocationClient.stop();
+    }
+
+    public class MyLocationListener extends BDAbstractLocationListener {
+
+        @Override
+        public void onReceiveLocation(final BDLocation location) {
+            //此处的BDLocation为定位结果信息类，通过它的各种get方法可获取定位相关的全部结果
+            //以下只列举部分获取地址相关的结果信息
+            //更多结果信息获取说明，请参照类参考中BDLocation类中的说明
+
+
+            locCity = location.getCity();
+
+/*            String addr = location.getAddrStr();    //获取详细地址信息
+            String country = location.getCountry();    //获取国家
+            String province = location.getProvince();    //获取省份
+            String city = location.getCity();    //获取城市
+            String district = location.getDistrict();    //获取区县
+            String street = location.getStreet();    //获取街道信息
+            String adcode = location.getAdCode();    //获取adcode
+            String town = location.getTown();    //获取乡镇信息
+ */
+        }
+    }
+
+    public void requestCityInfo(String cityname) {
+        HeConfig.init("HE2005102045471023", "a8cbacc0f792408f938372c5c0c4c1f2");
+        HeConfig.switchToFreeServerNode();
+        HeWeather.getSearch(getApplicationContext(), cityname, "world", 1, Lang.CHINESE_SIMPLIFIED, new HeWeather.OnResultSearchBeansListener() {
+
+            @Override
+            public void onError(Throwable throwable) {
+                Log.d(TAG, "Search onError: "+"城市回调");
+            }
+
+            @Override
+            public void onSuccess(Search search) {
+                Log.d(TAG, "Search onSuccess: " + new Gson().toJson(search));
+                //先判断返回的status是否正确，当status正确时获取数据，若status不正确，可查看status对应的Code值找到原因
+                if (Code.OK.getCode().equalsIgnoreCase(search.getStatus())) {
+                    Basic basic = search.getBasic().get(0);
+                    locCityCode = basic.getCid().substring(2);
+                    locCity = basic.getLocation();
+                    locProvince = basic.getParent_city();
+                } else {
+                    String status = search.getStatus();
+                    Code code = Code.toEnum(status);
+                    Log.d(TAG, "failed code: " + code);
+                }
+            }
+        });
     }
 }

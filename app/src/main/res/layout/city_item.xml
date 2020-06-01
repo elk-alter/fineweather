@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:foreground="?attr/selectableItemBackgroundBorderless"
     android:layout_margin="5dp"
     app:cardCornerRadius="4dp">
 
@@ -13,18 +14,18 @@
 
         <TextView
             android:id="@+id/city_name"
-            android:layout_width="100dp"
+            android:layout_width="200dp"
             android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center"
             android:layout_margin="5dp"
-            android:textSize="16sp" />
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/city_tmp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center"
             android:layout_margin="5dp"
-            android:textSize="16sp"/>
+            android:textSize="24sp"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

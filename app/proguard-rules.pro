@@ -26,3 +26,7 @@
 
   -dontwarn interfaces.heweather.com.interfacesmodule.**
   -keep class interfaces.heweather.com.interfacesmodule.** { *;}
+
+  -keep class com.baidu.** {*;}
+  -keep class mapsdkvi.com.** {*;}
+  -dontwarn com.baidu.**

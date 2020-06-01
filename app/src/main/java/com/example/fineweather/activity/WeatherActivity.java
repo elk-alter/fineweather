@@ -78,14 +78,19 @@ public class WeatherActivity extends AppCompatActivity {
 
         String cityCode = getIntent().getStringExtra("cityCode");
 
-        requestWeather(cityCode);
+        if (getIntent().getIntExtra("step", 0) == 0) {
+            requestWeather(cityCode);
 
-        try {
-            Thread.sleep(3000);
+            try {
+                Thread.sleep(3000);
+                showWeatherInfo(cityCode);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
             showWeatherInfo(cityCode);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+
 
     }
 
