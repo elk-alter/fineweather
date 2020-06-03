@@ -239,15 +239,10 @@ public class CityPickerActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                List<CityInfo> cityInfoList = LitePal.findAll(CityInfo.class);
-                for (CityInfo cityInfo : cityInfoList) {
-                    requestWeather(cityInfo.getCityCode());
-                    if (LitePal.where("cityCode = ?", cityInfo.getCityCode()).find(NowDB.class) != null) {
-                        NowDB nowDB = LitePal.where("cityCode = ?", cityInfo.getCityCode()).find(NowDB.class).get(0);
-                        String tmp = nowDB.getTmp();
-                        cityInfo.setCityTmp(tmp);
-                        cityInfo.save();
-                    }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
                 runOnUiThread(new Runnable() {
                     @Override

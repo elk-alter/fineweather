@@ -1,8 +1,9 @@
 package com.example.fineweather.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +15,10 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fineweather.R;
-import com.example.fineweather.activity.CityPickerActivity;
 import com.example.fineweather.activity.WeatherActivity;
 import com.example.fineweather.db.CityInfo;
+
+import org.litepal.LitePal;
 
 import java.util.List;
 
@@ -66,8 +68,28 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.ViewHolder> {
         holder.cardView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                //TODO
-                return false;
+                final int position = holder.getAdapterPosition();
+                final CityInfo cityInfo = mCityList.get(position);
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext).setIcon(R.mipmap.ic_launcher)
+                        .setTitle("注意").setMessage("是否要删除" + cityInfo.getCityName() + "的天气信息?");
+                builder.setPositiveButton("是的", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(mContext, "已删除", Toast.LENGTH_SHORT).show();
+                        mCityList.remove(position);
+                        LitePal.delete(CityInfo.class, cityInfo.getId());
+                        notifyDataSetChanged();
+                    }
+                });
+                builder.setNegativeButton("算了", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(mContext, "取消", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                });
+                builder.create().show();
+                return true;
             }
         });
         return holder;

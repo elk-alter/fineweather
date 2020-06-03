@@ -9,6 +9,10 @@ import com.google.gson.Gson;
 
 import org.litepal.LitePal;
 
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import interfaces.heweather.com.interfacesmodule.bean.Code;
@@ -156,7 +160,17 @@ public class WeatherUtil {
                                 HourlyDB hourlyDB = new HourlyDB();
                                 hourlyDB.setCityCode(cityCode);
                                 hourlyDB.setLocTime(dataObject.getUpdate().getLoc());
-                                hourlyDB.setTime(h.getTime());
+                                String time = h.getTime();
+                                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                                Date date = null;
+                                try {
+                                    date = format.parse(time);
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                SimpleDateFormat format1 = new SimpleDateFormat("HH");
+                                String hour = format1.format(date);
+                                hourlyDB.setTime(hour);
                                 hourlyDB.setTmp(h.getTmp());
                                 hourlyDB.setCond_txt(h.getCond_txt());
                                 hourlyDB.save();
