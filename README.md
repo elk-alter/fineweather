@@ -1,6 +1,8 @@
 # fineweather
 
-通过Android Q|Android 9测试，
+[![GitHub license](https://img.shields.io/github/license/elk-alter/fineweather)](https://github.com/elk-alter/fineweather/blob/master/LICENSE)[![GitHub issues](https://img.shields.io/github/issues/elk-alter/fineweather)](https://github.com/elk-alter/fineweather/issues)[![GitHub forks](https://img.shields.io/github/forks/elk-alter/fineweather)](https://github.com/elk-alter/fineweather/network)[![GitHub stars](https://img.shields.io/github/stars/elk-alter/fineweather)](https://github.com/elk-alter/fineweather/stargazers)
+
+通过Android Q|Android 9测试，最低支持Android 8.
 ![Snipaste_2020-08-17_11-42-49](C:\Users\87724\Documents\GitHub\fineweather\screenshot\Snipaste_2020-08-17_11-42-49.png)
 
 ## 界面
@@ -27,3 +29,11 @@
 - 状态栏工具
 - 主页小工具
 - shortcut
+
+## LICENSE
+
+本软件使用 [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0) 协议，请严格遵照协议内容
+
+气象数据来源于和风天气 api，免费版禁止商用
+
+定位服务基于百度地图api
