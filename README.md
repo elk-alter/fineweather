@@ -1,6 +1,9 @@
 # fineweather
 
-[![GitHub license](https://img.shields.io/github/license/elk-alter/fineweather)](https://github.com/elk-alter/fineweather/blob/master/LICENSE)[![GitHub issues](https://img.shields.io/github/issues/elk-alter/fineweather)](https://github.com/elk-alter/fineweather/issues)[![GitHub forks](https://img.shields.io/github/forks/elk-alter/fineweather)](https://github.com/elk-alter/fineweather/network)[![GitHub stars](https://img.shields.io/github/stars/elk-alter/fineweather)](https://github.com/elk-alter/fineweather/stargazers)
+[![GitHub license](https://img.shields.io/github/license/elk-alter/fineweather)](https://github.com/elk-alter/fineweather/blob/master/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/elk-alter/fineweather)](https://github.com/elk-alter/fineweather/issues)
+[![GitHub forks](https://img.shields.io/github/forks/elk-alter/fineweather)](https://github.com/elk-alter/fineweather/network)
+[![GitHub stars](https://img.shields.io/github/stars/elk-alter/fineweather)](https://github.com/elk-alter/fineweather/stargazers)
 
 通过Android Q|Android 9测试，最低支持Android 8.
 
